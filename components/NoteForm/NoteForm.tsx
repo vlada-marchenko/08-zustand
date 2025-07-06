@@ -5,7 +5,6 @@ import css from './NoteForm.module.css'
 import { createNote, CreateParams } from '../../lib/api'
 import { useRouter } from 'next/navigation'
 import { useNoteDraft } from '../../lib/store/noteStore'
-import { useState } from 'react'
 
 
 export default function NoteForm() {
@@ -14,7 +13,7 @@ export default function NoteForm() {
     const { mutate, isPending } = useMutation({
     mutationFn: createNote,
     onSuccess: () => {
-      clearDraft(),
+      clearDraft();
       router.push('/notes')
     }
   })
