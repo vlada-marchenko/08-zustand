@@ -1,6 +1,6 @@
 'use client'
 
-import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { useMutation } from '@tanstack/react-query'
 import css from './NoteForm.module.css'
 import { createNote, CreateParams } from '../../lib/api'
 import { useRouter } from 'next/navigation'
@@ -11,25 +11,15 @@ import { useState } from 'react'
 export default function NoteForm() {
     const router = useRouter()
     const { draft, setDraft, clearDraft } = useNoteDraft()
-    const [ errorMessage, setErrorMessage ] = useState<string | null>(null)
     const { mutate, isPending } = useMutation({
     mutationFn: createNote,
     onSuccess: () => {
       clearDraft(),
-      setErrorMessage,
       router.push('/notes')
-    },
-    onError: (error) => {
-      if (error) {
-        setErrorMessage(error.message)
-      } else {
-        setErrorMessage('Failed to create note. Please try again.')
-      }
     }
   })
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    setErrorMessage(null)
     const newNote: CreateParams = {
       title: draft.title,
       content: draft.content,

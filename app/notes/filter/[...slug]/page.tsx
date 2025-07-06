@@ -1,6 +1,4 @@
 export const dynamic = 'force-dynamic';
-
-import { title } from 'process';
 import { fetchNotes } from '../../../../lib/api';
 import css from '../../../page.module.css';
 import NotesClient from './Notes.client';

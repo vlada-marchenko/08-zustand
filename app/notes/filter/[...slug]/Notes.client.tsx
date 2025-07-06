@@ -24,7 +24,6 @@ type Props = {
 const NotesClient = ({ initialNotes, initialPage, initialSearch, initialTotalPages, tag }: Props) => {
   const [page, setPage] = useState(initialPage)
   const [search, setSearch] = useState(initialSearch || '')
-  const [isModalOpen, setIsModalOpen] = useState(false)
   const [debouncedSearch] = useDebounce(search, 400)
   const perPage = 12
 
