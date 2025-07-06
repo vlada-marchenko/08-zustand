@@ -2,97 +2,85 @@
 
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import css from './NoteForm.module.css'
-import { Formik, Form, Field, ErrorMessage } from 'formik'
-import type { FormikHelpers } from 'formik'
-import * as yup from 'yup'
-import { createNote } from '../../lib/api'
+import { createNote, CreateParams } from '../../lib/api'
+import { useRouter } from 'next/navigation'
+import { useNoteDraft } from '../../lib/store/noteStore'
+import { useState } from 'react'
 
 
-   interface NoteFormValues {
-    title: string,
-    content: string,
-    tag: string
-   }
-
-   const initialValues: NoteFormValues = {
-    title: '',
-    content: '',
-    tag: 'Todo'
-   }
-
-   export interface NoteFormProps {
-    onCancel: () => void
-   }
-
-   const validationSchema = yup.object().shape({
-    title: yup.string().min(3).max(50).required('Title is required'),
-    content: yup.string().max(500),
-    tag: yup.string().oneOf(['Todo', 'Work', 'Personal', 'Meeting', 'Shopping']).required('Tag is required')
-   })
-
-export default function NoteForm({ onCancel }: NoteFormProps) {
-    const queryClient = useQueryClient();
-
-    const { mutate: addNote } = useMutation({
-      mutationFn: createNote, 
-      onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: ['notes']})
-        onCancel()
+export default function NoteForm() {
+    const router = useRouter()
+    const { draft, setDraft, clearDraft } = useNoteDraft()
+    const [ errorMessage, setErrorMessage ] = useState<string | null>(null)
+    const { mutate, isPending } = useMutation({
+    mutationFn: createNote,
+    onSuccess: () => {
+      clearDraft(),
+      setErrorMessage,
+      router.push('/notes')
+    },
+    onError: (error) => {
+      if (error) {
+        setErrorMessage(error.message)
+      } else {
+        setErrorMessage('Failed to create note. Please try again.')
       }
-    })
-
-    const handleSubmit = (values: NoteFormValues, actions: FormikHelpers<NoteFormValues>) => {
-      addNote(values)
-      actions.resetForm()
     }
+  })
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    setErrorMessage(null)
+    const newNote: CreateParams = {
+      title: draft.title,
+      content: draft.content,
+      tag: draft.tag || 'Todo',
+    }
+    mutate(newNote)
+  }
+
+    const handleChange = ({
+    target: { value, name },
+  }: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    setDraft({ ...draft, [name]: value })
+  }
 
 
-    return ( <Formik initialValues={initialValues} validationSchema={validationSchema} onSubmit={handleSubmit}>
-      {({ isSubmitting}) => (
-    <Form className={css.form}>
+return ( 
+<>
+  <form onSubmit={handleSubmit} className={css.form}>
   <div className={css.formGroup}>
     <label htmlFor="title">Title</label>
-    <Field id="title" type="text" name="title" className={css.input} />
-    <ErrorMessage component='span' name="title" className={css.error} />
+    <input id="title" type="text" name="title" disabled={isPending} value={draft.title} className={css.input} onChange={handleChange}/>
   </div>
 
   <div className={css.formGroup}>
     <label htmlFor="content">Content</label>
-    <Field
-      as='textarea'
-      id="content"
-      name="content"
-      rows={8}
-      className={css.textarea}
-    />
-    <ErrorMessage component='span' name="content" className={css.error} />
+    <textarea id="content" name="content" value={draft.content} disabled={isPending} rows={8} className={css.textarea} onChange={handleChange} ></textarea>
   </div>
 
   <div className={css.formGroup}>
     <label htmlFor="tag">Tag</label>
-    <Field as='select' id="tag" name="tag" className={css.select}>
+    <select name="tag" id="tag" value={draft.tag} disabled={isPending} className={css.select} onChange={handleChange}>
       <option value="Todo">Todo</option>
       <option value="Work">Work</option>
       <option value="Personal">Personal</option>
       <option value="Meeting">Meeting</option>
       <option value="Shopping">Shopping</option>
-    </Field>
-    <ErrorMessage component='span' name="tag" className={css.error} />
+    </select>
   </div>
 
   <div className={css.actions}>
-    <button type="button" className={css.cancelButton} onClick={onCancel}> 
+    <button type="button" className={css.cancelButton} onClick={() => router.back()}> 
       Cancel
     </button>
     <button
       type="submit"
       className={css.submitButton}
-      disabled={isSubmitting}
     >
       Create note
     </button>
   </div>
-</Form> )}
-</Formik>
-    )
+</form>
+</>
+)
 }

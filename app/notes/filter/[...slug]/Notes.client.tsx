@@ -9,9 +9,9 @@ import {  useQuery } from '@tanstack/react-query'
 import { fetchNotes, type HttpResponse } from '../../../../lib/api'
 import { useDebounce } from 'use-debounce'
 import { Note } from '../../../../types/note'
-import Modal from '../../../../components/Modal/Modal'
-import NoteForm from '../../../../components/NoteForm/NoteForm'
-// import { useParams } from 'next/navigation'
+import Link from 'next/link'
+
+
 
 type Props = {
   initialNotes: Note[],
@@ -27,8 +27,7 @@ const NotesClient = ({ initialNotes, initialPage, initialSearch, initialTotalPag
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [debouncedSearch] = useDebounce(search, 400)
   const perPage = 12
-  // const params = useParams()
-  // const tag = params.slug?.[0] === 'All' ? '' :  params.slug?.[0] 
+
 
 
   const { data, isLoading, error } = useQuery<HttpResponse, Error>({
@@ -49,20 +48,13 @@ const NotesClient = ({ initialNotes, initialPage, initialSearch, initialTotalPag
   if (error) return <p>Error loading notes!</p>
 
 
-  function handleModalOpen() {
-	setIsModalOpen(true)
-  }
-
-  function handleModalClose() {
-	setIsModalOpen(false)
-  }
-
   return <div className={css.app}>
 	<header className={css.toolbar}>
     <SearchBox search={search} onSearchChange={setSearch} />
 		{data && data.totalPages > 1 && <Pagination page={page} totalPages={data.totalPages || 1} onPageChange={setPage}/>}
-		<button className={css.button} onClick={handleModalOpen}>Create note +</button>
-		{isModalOpen && <Modal onClose={handleModalClose}> <NoteForm onCancel={handleModalClose}/></Modal>}
+		<button className={css.button}>
+      <Link href={'/notes/action/create'}>Create note +</Link>
+    </button>
   </header>
   {!isLoading && notes.length > 0 && <NoteList notes={notes}/>}
 </div>
