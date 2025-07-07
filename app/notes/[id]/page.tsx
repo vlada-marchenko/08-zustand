@@ -5,6 +5,7 @@ import {
   QueryClient,
 } from '@tanstack/react-query';
 import NoteDetailsClient from './NoteDetails.client';
+import type { Metadata } from 'next';
 
 export interface PageParams {
   id: string;
