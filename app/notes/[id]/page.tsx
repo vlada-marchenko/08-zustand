@@ -14,7 +14,7 @@ type Props = {
   params: Promise<PageParams>
 }
 
-export async function generateMetadata({ params }: Props) {
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params
   const noteId = Number(id)
   const note = await fetchNoteById(noteId)
