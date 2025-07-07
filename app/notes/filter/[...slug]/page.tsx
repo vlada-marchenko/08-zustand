@@ -2,6 +2,7 @@ export const dynamic = 'force-dynamic';
 import { fetchNotes } from '../../../../lib/api';
 import css from '../../../page.module.css';
 import NotesClient from './Notes.client';
+import type { Metadata } from 'next';
 
 type Props = {
   params: Promise<{slug?: string[]}>
