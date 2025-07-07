@@ -7,14 +7,14 @@ type Props = {
   params: Promise<{slug?: string[]}>
 }
 
-export async function generateMetadata({ params }: Props ) {
+export async function generateMetadata({ params }: Props ): Promise<Metadata> {
   const slugArray = (await params).slug || [];
   const filter = slugArray.join(' / ') || 'All notes';
 
   return {
     title: `${filter} notes`,
     description: `Notes filtered by ${filter}.`,
-    openGraph: [{
+    openGraph: {
       title: `${filter} notes`,
       description: `Notes filtered by ${filter}.`,
       url: `https://08-zustand-five.vercel.app/notes/filter/${filter}`,
@@ -24,14 +24,14 @@ export async function generateMetadata({ params }: Props ) {
       height: 630,
       alt: `${filter} notes`
     }]
-    }]
+    }
   };
 }
 
 export default async function NotesPage({
   params,
 }: {
-  params: Promise<{ slug?: string[] }>;
+  params: Promise<{ slug: string[] }>;
 }) {
 
   const { slug } = await params;
